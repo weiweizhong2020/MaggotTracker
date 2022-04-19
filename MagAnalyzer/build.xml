@@ -1,0 +1,89 @@
+<project name="MagAnalyzer-and-Viewer" default="compile" basedir=".">
+    <description>MagAnalyzer and MagViewer </description>
+
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="compiled"/>
+  <property name="dist"  location="dist"/>
+  <property name="arg1" value="" />
+  <property name="DEBUG" value="true" />
+  <property name="app_name" value="MagViewer" />
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <path id="project.class.path">
+  	<pathelement location="lib/commons-math-2.0.jar" />
+  	<pathelement location="lib/jmf.jar" />
+  </path>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <target name="compile" depends="clean,init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" includeAntRuntime="false"
+	 debug="on"
+	 listfiles="false">
+	 	<compilerarg value="-Xlint:all"/>
+	 	<classpath refid="project.class.path" />
+	 </javac>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution" >
+    <!-- Create the distribution directory -->
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar destfile="${dist}/${app_name}-${DSTAMP}.jar">
+	 	<fileset dir="${build}"/>
+		<restrict>
+			<name name="**/*.class" />
+			<archives>
+				<zips>
+					<fileset dir="lib" includes="**/*.jar"/>
+				</zips>
+			</archives>
+		</restrict>
+	 	<manifest>
+			<attribute name="Main-Class" value="org.wormloco.mag.MagViewer"/>
+	 	</manifest>
+	 </jar>
+  </target>
+
+  <target name="MagAnalyzer" description="runs MagAnalyzer"
+    depends="clean,compile">
+    <java 
+      classname="org.wormloco.mag.MagAnalyzer"
+      fork="false" >
+		<arg line="${arg1}" />
+		<sysproperty key="DEBUG" value="false" />
+      <classpath>
+        <path refid="project.class.path" />
+        <path location="${build}" />
+      </classpath>
+    </java>
+  </target>
+
+  <target name="MagViewer" description="runs MagViewer"
+    depends="clean,compile">
+    <java 
+      classname="org.wormloco.mag.MagViewer"
+      fork="true" >
+      <classpath>
+        <path refid="project.class.path" />
+        <path location="${build}" />
+      </classpath>
+    </java>
+  </target>
+</project>
+

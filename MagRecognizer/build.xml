@@ -1,0 +1,85 @@
+<project name="MagRecognizer" default="compile" basedir=".">
+    <description>MagRecognizer version November-2014</description>
+
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="compiled"/>
+  <property name="lib" location="lib"/>
+  <property name="DEBUG" value="true" />
+  <property name="arg1" value="" />
+  <property name="arg2" value="" />
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <path id="project.class.path">
+  	<pathelement location="${lib}/ij.jar" />
+  	<pathelement location="${lib}/jmf.jar" />
+  	<!-- pathelement location="/somefolder/JMF-2.1.1e/lib/jmf.jar" / -->
+  	<pathelement location="${lib}/commons-io-2.4.jar" />
+  	<pathelement location="${lib}/commons-math-2.0.jar" />
+  </path>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" includeAntRuntime="false"
+	 debug="on"
+	 listfiles="false">
+	 	<classpath refid="project.class.path" />
+	 </javac>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <delete dir="${build}"/>
+    <delete dir="doc"/>
+  </target>
+
+
+  <target name="doc" description="Generate Java documentation" 
+  	 depends="clean,compile">
+    <mkdir dir="doc"/>
+    <javadoc sourcepath="${src}" destdir="doc" >
+	 	<classpath refid="project.class.path" />
+		</javadoc>
+  </target>
+
+
+  <target name="run" description="runs MagRecognizer"
+    depends="clean,compile">
+    <java 
+      classname="org.wormloco.mag.MagRecognizer"
+      fork="true" >
+		<arg line="${arg1}" />
+		<arg line="${arg2}" />
+      <classpath>
+			<pathelement location="${build}" />
+			<path refid="project.class.path" />
+      </classpath>
+		<!--  testing only: jvmarg value="-Djava.awt.headless=true"/ -->
+    </java>
+  </target>
+
+
+  <target name="datastitcher" description="runs DataStitcher (normally for testing only)"
+    depends="clean,compile">
+    <java 
+      classname="org.wormloco.mag.DataStitcher"
+      fork="true" >
+		<arg line="${arg1}" />
+		<sysproperty key="DEBUG" value="true" />
+      <classpath>
+			<pathelement location="${build}" />
+			<path refid="project.class.path" />
+      </classpath>
+    </java>
+  </target>
+
+
+</project>
+
